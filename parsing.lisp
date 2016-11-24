@@ -592,3 +592,87 @@
       assumption
       conclusion
       exemplification))
+
+(define-mizar-rule generalization ()
+  (prog1 `(,(progn "let" 'let)
+	    ,qualified-variables
+	    ,(? (progn "such" conditions)))
+    ";"))
+
+(define-mizar-rule assumption ()
+  (|| single-assumption
+      collective-assumption
+      existential-assumption))
+
+(define-mizar-rule single-assumption ()
+  (prog1 `(,(progn "assume" 'assume)
+	    ,proposition)
+    ";"))
+
+(define-mizar-rule collective-assumption ()
+  (prog1 `(,(progn "assume" 'assume)
+	    ,@conditions)
+    ";"))
+
+(define-mizar-rule existential-assumption ()
+  (prog1 `(,(progn "given" 'given)
+	    ,qualified-variables
+	    ,(? (progn "such" conditions)))
+    ";"))
+
+(define-mizar-rule conclusion ()
+  (|| (progn (|| "thus" "hence") compact-statement)
+      diffuse-conclusion))
+
+(define-mizar-rule diffuse-conclusion ()
+  (|| (progn "thus" c!-1-diffuse-statement)
+      (progn "hereby" c!-1-reasoning "end" ";"))
+  c!-1)
+
+
+(define-mizar-rule exemplification ()
+  `(,(progn "take" 'take)
+     ,@(comma-semicolon-list example)))
+
+(define-mizar-rule example ()
+  (|| term-expression
+      (progn c!-1-variable-identifier
+	     "="
+	     c!-2-term-expression
+	     (list c!-1 c!-2))))
+
+(define-mizar-rule statement ()
+  (? "then")
+  (|| linkable-statement
+      diffuse-statement))
+
+(define-mizar-rule linkable-statement ()
+  (|| compact-statement
+      choice-statement
+      type-changing-statement
+      iterative-equality))
+
+(define-mizar-rule compact-statement ()
+  (prog1 (list proposition justification)
+    ";"))
+
+(define-mizar-rule choice-statement ()
+  "consider"
+  c!-1-qualified-variables
+  "such"
+  c!-2-conditions
+  c!-3-simple-justification
+  ";"
+  `(consider ,c!-1 ,c!-2 c!-3))
+
+(define-mizar-rule type-changing-statement ()
+  "reconsider"
+  c!-1-type-change-list
+  "as"
+  c!-2-type-expression
+  c!-3-simple-justification
+  ";"
+  `(reconsider ,c!-1 ,c!-2 ,c!-3))
+
+(define-mizar-rule type-change-list ()
+  
